@@ -1,0 +1,24 @@
+.buttonDesign
+{
+    width: 100%;
+    height: 50px;
+}
+
+.newDesign
+{
+    width: 100%;
+    height: 50px;
+}
+
+.lblDesign
+{
+    width:   150px;
+    height:  32px;
+    display: inline-block;
+}
+
+.comboDesign
+{
+    height: 32px;
+    width: 199px;
+}
