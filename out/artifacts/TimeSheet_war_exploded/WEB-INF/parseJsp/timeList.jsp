@@ -9,37 +9,33 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <script>
-    function searchTime(rowId, month)
+
+    function searchTimeSheet(rowId, monthId)
     {
-        if (rowId != null)
-        {
-            month = month + 2
-            if (month > 12)
-            {
-                month = month - 12
-            }
             $.ajax({
                 type: 'GET',
                 url:  'cs?action=searchTimeSheet',
-                data: 'rowId='+rowId+'&monthName='+month,
+                data: 'rowId='+rowId+'&monthId='+monthId,
                 dataType: 'html',
                 success: function (data)
                 {
                     $('#timesheetDataId').html(data);
-                    //$('.fullname').text(fullname);
+                    $('.fullname').text(globEmpName);
                 },
                 error: function ()
                 {
                     alert('Have error')
                 }
             })
-        }
     }
+
+
+
     $(function ()
     {
         $('#tsTableId').dataTable({
             paging: true,
-            pageLength: 31,
+            pageLength: 40,
             searching: true,
             lengthChange: false,
             info: false,
@@ -49,45 +45,98 @@
 
         $('#tsTableId_length').hide();
 
-        $('.datepicker').datepicker({
-            changeMonth: true,
-            changeYear: false,
-            dateFormat: 'MM',
-            showButtonPanel: true,
-            dateFormat: 'MM',
-            onClose: function(dateText, inst)
+
+        $('#reportTableId').dataTable({
+            paging: true,
+            pageLength: 5,
+            searching: true,
+            lengthChange: false,
+            info: false,
+            scrollCollapse: true,
+            scrollY: "calc(74vh)"});
+        $('#reportTableId_filter').hide();
+
+        $('#reportTableId_paginate').hide();
+
+        $('#reportTableId_length').hide();
+
+
+
+        $('#IconDemo').MonthPicker({ StartYear: 2019, ShowIcon: true,
+            OnAfterChooseMonth: function()
             {
-                //$(this).datepicker('setDate', new Date(inst.selectedMonth, 0));
-                $('#datepicker').datepicker("setDate", new Date(inst.selectedMonth, 0));
-            },
+                var monthId = $(this).val().split('/')[0];
+                $('#IconDemo').val(globMonthList[parseInt(monthId-1)]);
+                searchTimeSheet(globEmployeId, monthId);
+            }
+        });
+
+        $("input[type='month']").MonthPicker();
+
+
+        var rdCount = 0;
+        var vdCount = 0;
+        var sdCount = 0;
+        var ndCount = 0;
+        var rhHour  = 0;
+        var ohHour  = 0;
+
+        $('.items').each(function (i, v)
+        {
+            var status = $(v).find('.selectpicker :selected').val();
+            var workHour   = $(v).find('.workhour').text();
+
+            if (status == 'R' || status == 'SD')
+            {
+                rdCount++ ;
+                rhHour += parseInt(workHour);
+            }
+
+            else if(status == 'O')
+            {
+                ohHour += parseInt(workHour);
+            }
+
+            else if(status == 'V')
+            {
+                vdCount++;
+            }
+
+            else if(status == 'SL')
+            {
+                sdCount++;
+            }
+
+            else if(status == 'W' || status == 'H')
+            {
+                ndCount++;
+            }
 
         });
 
-
-            /*$('#statusComboId').change(function ()
-            {
-                alert($(this).val())
-                if ($(this).val() === 'O')
-                {
-                    $('#workHour').attr("contenteditable", true);
-                }
-            })*/
+        $('#mwd').text(rdCount)
+        $('#nwd').text(ndCount);
+        $('#sl').text(sdCount);
+        $('#vd').text(vdCount);
+        $('#mwh').text(rhHour);
+        $('#ot').text(ohHour);
 
 
     });
 
 </script>
 
+
 <div>
-    <div>
+    <div style="margin-top: 10px;"> Choose a Month
         <div style="display: inline-block">
-            <input type="text" id="dateId" class="datepicker" placeholder="Select Date"/>
+            <input id="IconDemo" class="Default month-year-input" type="text" disabled="disabled">
         </div> &nbsp;
 
         <div class="fullname" style="display: initial">fullname</div>
         <br>
     </div>
-
+</div>
 <div>
     <table id="tsTableId" class="display" cellspacing="0" width="100%">
         <thead>
@@ -95,12 +144,10 @@
             <th>Day</th>
             <th>Status</th>
             <th>Comment</th>
-            <td>Working Hour</td>
+            <th>Working Hour</th>
         </thead>
 
         <tbody>
-
-
         <c:forEach items="${tsList}" var="tl" varStatus="Count">
             <tr class="items" ${tl.id}>
                 <td class="month" id="${tl.monthId}">${tl.monthName}</td>
@@ -111,7 +158,6 @@
                     <select id="statusComboId_${Count.count}" style="width: 110px" class="selectpicker"
                             onchange="if ((this.value) === 'O')
                             {
-                                alert(this.value);
                                 $('#workHour_${Count.count}').attr('contenteditable', true)
                             }
                             else
@@ -126,6 +172,7 @@
                         <option <c:if test="${tl.status == 'O'}">  selected </c:if> value="O">Overtime</option>
                         <option <c:if test="${tl.status == 'V'}">  selected </c:if> value="V">Vacation</option>
                         <option <c:if test="${tl.status == 'SD'}"> selected </c:if> value="SD">Sort Day</option>
+                        <option <c:if test="${tl.status == 'SL'}"> selected </c:if> value="SL">Sick Leave</option>
                     </select>
                 </td>
 
@@ -136,17 +183,47 @@
         </c:forEach>
 
         </tbody>
-        <tfoot>
+        <%--<tfoot>
             <th>Month</th>
             <th>Day</th>
             <th>Status</th>
             <th>Comment</th>
             <th>Working Hour</th>
-        </tfoot>
+        </tfoot>--%>
+
+
     </table>
+
+    <div>
+            <table id="reportTableId" class="display" cellspacing="0" width="100%" style="text-align: center">
+                <thead>
+                    <th>Monthly Working Days</th>
+                    <th>Holidays and Non-working days</th>
+                    <th>Sick Leave</th>
+                    <th>Vacation</th>
+                    <th>Monthly Working Hours</th>
+                    <th>Overtime Hours</th>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td id="mwd"></td>
+                        <td id="nwd"></td>
+                        <td id="sl"></td>
+                        <td id="vd"></td>
+                        <td id="mwh"></td>
+                        <td id="ot"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     <div>
         <input type="button" id="updateTimesheetBtnId" value="Submit"
-               style="float:right;  width: 140px; height: 45px; margin: 30px; margin-right: 270px">
+               style="float: right;
+                      width: 100%;
+                      height: 45px;
+                      margin-top: 30px;">
     </div>
 </div>
+
 </div>

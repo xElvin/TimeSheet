@@ -11,6 +11,15 @@
   <head>
     <title>TimeSheet</title>
 
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/MonthPicker.css">
+    <link rel="stylesheet" type="text/css" href="css/MonthPicker.min.css">
+    <link rel="stylesheet" type="text/css" href="css/examples.css">
+
+
     <script type="text/javascript" src="js/jquery/jquery-latest.js"></script>
     <script type="text/javascript" src="js/jquery/jquery.layout-latest.js"></script>
     <script type="text/javascript" src="js/jquery/jquery.dataTables.min.js"></script>
@@ -18,13 +27,9 @@
     <script type="text/javascript" src="js/popper.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js" ></script>
     <script type="text/javascript" src="js/main.js"></script>
-
-
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="css/main.css">
-    <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
-
+    <script type="text/javascript" src="js/jquery/MonthPicker.js"></script>
+    <script type="text/javascript" src="js/jquery/MonthPicker.min.js"></script>
+    <script type="text/javascript" src="js/jquery/examples.js"></script>
 
 
     <script>
@@ -83,14 +88,12 @@
 <div class="container">
   <div class="row" style=" min-height: 500px;">
     <div class="col-md-4" >
-      east
-      <input type="button" value="Employes" id="EmployeeButtonId" class="buttonDesign"> <br>
+      <input type="button" value="Employes" id="EmployeeButtonId" class="buttonDesign" style="margin-top: 10px;"> <br>
       <div id="employeeDataId" style="display: none">
       </div>
     </div>
 
     <div class="col-md-8">
-      center
       <div id="timesheetDataId" style="display: none">
 
       </div>
@@ -100,6 +103,7 @@
 </div>
     <div  style="text-align: center">Copyright©Elvin</div>
   </div>
+
 
   </body>
 

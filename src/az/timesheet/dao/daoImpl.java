@@ -1,6 +1,7 @@
 package az.timesheet.dao;
 
 import az.timesheet.model.Employee;
+import az.timesheet.model.Report;
 import az.timesheet.model.Timesheet;
 import az.timesheet.util.DBClose;
 import az.timesheet.util.DBConnect;
@@ -141,13 +142,6 @@ public class daoImpl implements Dao
     public List<Timesheet> getTimesheet(long eId) throws Exception
     {
         List<Timesheet> timesheetList = new ArrayList<Timesheet>();
-        /*int i = 0;
-            while(i < 31)
-            {
-                Timesheet ts = new Timesheet();
-                timesheetList.add(ts);
-                i++;
-            }*/
 
         Connection         c = null;
         PreparedStatement ps = null;
@@ -198,19 +192,12 @@ public class daoImpl implements Dao
     public List<Timesheet> searchTimesheet(long eId, long monthId) throws Exception
     {
         List<Timesheet> searchTimesheetList = new ArrayList<Timesheet>();
-        /*int i = 0;
-        while(i < 31)
-        {
-            Timesheet ts = new Timesheet();
-            searchTimesheetList.add(ts);
-            i++;
-        }*/
 
         Connection         c = null;
         PreparedStatement ps = null;
         ResultSet         rs = null;
 
-        String sql = "select T.idTimesheet, T.month_id, T.emp_id, T.day, T.status, T.comment, M.name, E.name, E.surname \n" +
+        String sql = "select T.idTimesheet, T.month_id, T.emp_id, T.day, T.status, T.comment, T.workHour, M.name, E.name, E.surname \n" +
                 "from timesheetdb.timesheet T\n" +
                 "inner join timesheetdb.month M on T.month_id = M.idMonth\n" +
                 "inner join timesheetdb.employee E on T.emp_id = E.idEmployee\n" +
@@ -238,7 +225,8 @@ public class daoImpl implements Dao
                     ts.setStatus(rs.getString("T.status"));
                     ts.setDay(rs.getInt("T.day"));
                     ts.setComment(rs.getString("T.comment"));
-                    searchTimesheetList.add(/*rs.getInt("T.day"), */ts);
+                    ts.setWorkHour(rs.getInt("T.workHour"));
+                    searchTimesheetList.add(ts);
                 }
             }
         }catch (Exception e)
@@ -255,105 +243,13 @@ public class daoImpl implements Dao
     @Override
     public void updateTimesheet(Timesheet t) throws Exception
     {
-        Timesheet ts = new Timesheet();
         Connection         c = null;
         PreparedStatement ps = null;
-        String sql;
+        String sql = "update timesheetdb.timesheet set\n" +
+                    "status = ?, comment = ?, workHour = ? \n" +
+                    "where emp_id = ? and month_id = ? and day = ? ";
 
         try
-        {
-
-            if (t.getStatus().equals("R"))
-            {
-                sql = "update timesheetdb.timesheet set\n" +
-                        "status = ?, comment = ?, workHour = 8 \n" +
-                        "where month_id = ? and emp_id = ? and day = ? ";
-                c = DBConnect.getConnection();
-                if (c != null)
-                {
-                    ps = c.prepareStatement(sql);
-                    ps.setString(1, t.getStatus());
-                    ps.setString(2, t.getComment());
-                    ps.setLong(3, t.getMonthId());
-                    ps.setLong(4, t.getEmpId());
-                    ps.setInt(5, t.getDay());
-                    ps.executeUpdate();
-                }
-                else
-                    System.out.println("Connection is null!");
-            }
-
-            else if (t.getStatus().equals("SD"))
-            {
-                sql = "update timesheetdb.timesheet set\n" +
-                        "status = ?, comment = ?, workHour = 7 \n" +
-                        "where month_id = ? and emp_id = ? and day = ? ";
-                c = DBConnect.getConnection();
-                if (c != null)
-                {
-                    ps = c.prepareStatement(sql);
-                    ps.setString(1, t.getStatus());
-                    ps.setString(2, t.getComment());
-                    ps.setLong(3, t.getMonthId());
-                    ps.setLong(4, t.getEmpId());
-                    ps.setInt(5, t.getDay());
-                    ps.executeUpdate();
-                }
-                else
-                    System.out.println("Connection is null!");
-            }
-
-            else if (t.getStatus().equals("O"))
-            {
-                sql = "update timesheetdb.timesheet set\n" +
-                        "status = ?, comment = ?, workHour = ? \n" +
-                        "where month_id = ? and emp_id = ? and day = ? ";
-                c = DBConnect.getConnection();
-                if (c != null)
-                {
-                    ps = c.prepareStatement(sql);
-                    ps.setString(1, t.getStatus());
-                    ps.setString(2, t.getComment());
-                    ps.setInt(3, t.getWorkHour());
-                    ps.setLong(4, t.getMonthId());
-                    ps.setLong(5, t.getEmpId());
-                    ps.setInt(6, t.getDay());
-                    ps.executeUpdate();
-                }
-                else
-                    System.out.println("Connection is null!");
-
-            }
-
-            else
-            {
-                sql = "update timesheetdb.timesheet set\n" +
-                        "status = ?, comment = ?, workHour = 0 \n" +
-                        "where month_id = ? and emp_id = ? and day = ? ";
-                c = DBConnect.getConnection();
-                if (c != null)
-                {
-                    ps = c.prepareStatement(sql);
-                    ps.setString(1, t.getStatus());
-                    ps.setString(2, t.getComment());
-                    ps.setLong(3, t.getMonthId());
-                    ps.setLong(4, t.getEmpId());
-                    ps.setInt(5, t.getDay());
-                    ps.executeUpdate();
-                }
-                else
-                    System.out.println("Connection is null!");
-            }
-        } catch (Exception ex)
-        {
-            ex.printStackTrace();
-        } finally
-        {
-            DBClose.dbClose(c, ps, null);
-        }
-
-
-        /*try
         {
             c = DBConnect.getConnection();
             if (c != null)
@@ -361,19 +257,86 @@ public class daoImpl implements Dao
                 ps = c.prepareStatement(sql);
                 ps.setString(1, t.getStatus());
                 ps.setString(2, t.getComment());
-                ps.setLong(3, t.getMonthId());
+
+                String caseKey = t.getStatus();
+
+                switch(caseKey) {
+                    case "R" : //Regular day
+                        ps.setInt(3,8);
+                        break;
+
+                    case "SD" : //Short Day
+                        ps.setInt(3,7);
+                        break;
+
+                    case "O" : //Overtime
+                        ps.setInt(3,t.getWorkHour());
+                        break;
+
+                    default : //Other days
+                        ps.setInt(3,0);
+                }
                 ps.setLong(4, t.getEmpId());
-                ps.setInt(5, t.getDay());
-                ps.executeUpdate();
+                ps.setLong(5, t.getMonthId());
+                ps.setLong(6, t.getDay());
+                ps.execute();
             }
-            else
-                System.out.println("Connection is null!");
-        } catch (Exception e)
+
+                else
+                    System.out.println("Connection is null!");
+
+        } catch (Exception ex)
         {
-            e.printStackTrace();
+            ex.printStackTrace();
         } finally
         {
             DBClose.dbClose(c, ps, null);
-        }*/
+        }
     }
+
+    /*@Override
+    public List<Report> getReport(long empId, long monthId) throws Exception {
+        List<Report> reportList = new ArrayList<Report>();
+
+        Report r = new Report();
+
+        Connection         c = null;
+        PreparedStatement ps = null;
+        ResultSet         rs = null;
+
+        String sql = "select count(day) as totalDay, sum(workHour) as totalHour, status from timesheetdb.timesheet" +
+                     " where emp_id = ? and month_id = ? and status in ('R', 'SD', 'O') group by status";
+        try
+        {
+            c = DBConnect.getConnection();
+            if (c != null)
+            {
+                ps = c.prepareStatement(sql);
+                ps.setLong(1, empId);
+                ps.setLong(2, monthId);
+
+                rs = ps.executeQuery();
+
+                while (rs.next())
+                {
+                    r.setTotalDay(rs.getInt("totalDay"));
+                    r.setTotalHour(rs.getInt("totalHour"));
+                    r.setStatus(rs.getString("status"));
+                    reportList.add(r);
+                }
+                System.out.println("report Dao="+reportList);
+            }
+
+            else
+                System.out.println("Connection is null!");
+
+        } catch (Exception ex)
+        {
+            ex.printStackTrace();
+        } finally
+        {
+            DBClose.dbClose(c, ps, rs);
+        }
+        return reportList;
+    }*/
 }

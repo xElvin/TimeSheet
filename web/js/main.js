@@ -1,6 +1,7 @@
 var globEmployeId = '';
-var globMonthName = '';
-
+var globEmpName   = '';
+var globMonthId   = '';
+var globMonthList = '';
 
 function getEmployeeList()
 {
@@ -63,19 +64,19 @@ function getEmployeById(empId)
 
 
 
-function getTimeSheet(rowId, fullname)
+function getTimeSheet(rowId, monthId)
 {
     if (rowId != null)
     {
         $.ajax({
             type: 'GET',
             url:  'cs?action=getTimeSheet',
-            data: 'rowId='+rowId+'&monthName='+globMonthName,
+            data: 'rowId='+rowId+'&monthId='+globMonthId,
             dataType: 'html',
             success: function (data)
             {
                 $('#timesheetDataId').html(data);
-                $('.fullname').text(fullname);
+                $('.fullname').text(globEmpName);
                 timesheetDatepicker();
             },
             error: function ()
@@ -85,32 +86,6 @@ function getTimeSheet(rowId, fullname)
         })
     }
 }
-
-
-
-
-/*function searchTime(rowId, month)
-{
-    if (rowId != null)
-    {
-        $.ajax({
-            type: 'GET',
-            url:  'cs?action=searchTimeSheet',
-            data: 'rowId='+rowId+'&monthName='+month,
-            dataType: 'html',
-            success: function (data)
-            {
-                $('#timesheetDataId').html(data);
-                //$('.fullname').text(fullname);
-            },
-            error: function ()
-            {
-                alert('Have error')
-            }
-        })
-    }
-}*/
-
 
 
 
@@ -129,7 +104,6 @@ function updateTimesheet() {
         arr[i] = {month: month, day: day, status: status, comment: comment, workHour: workHour};
     });
 
-    console.log(arr);
     $.ajax({
         type: 'POST',
         url: 'cs?action=updateTimeSheet',
@@ -137,35 +111,13 @@ function updateTimesheet() {
         success: function ()
         {
             alert('Employee was updated!');
+            getTimeSheet(globEmployeId, globMonthId)
         },
         error: function () {
             alert('Have an error!');
         }
     })
 }
-
-
-
-        /*var empId = globEmployeId;
-
-        var monthId = $(el).closest('tr').find('.month').attr('id');
-        var status  = $(el).closest('tr').find('.selectpicker :selected').val();
-        var day     = $(el).closest('tr').find('.day').text();
-        var comment = $(el).closest('tr').find('.comment').text();
-    $.ajax({
-        type: 'POST',
-        url: 'cs?action=updateTimeSheet',
-        data: 'monthId=' + monthId + '&empId=' + empId + '&status=' + status +
-        '&day=' + day + '&comment=' + comment,
-        dataType: 'html',
-        success: function () {
-            alert('Timesheet was updated...')
-        },
-        error: function () {
-            alert('Have a error!')
-        }
-
-    })*/
 
 
 
@@ -176,7 +128,7 @@ $(function ()
     $(document).on('click', '#updateTimesheetBtnId', function ()
     {
         updateTimesheet();
-        //getTimeSheet(globEmployeId, fullname);
+        getTimeSheet(globEmployeId, globMonthId);
         $('#timesheetDataId').show();
     })
 })
@@ -192,8 +144,9 @@ $(function ()
         globEmployeId = rowId;
         $('#timesheetDataId').show();
         var fullname = $(this).find('.name').text();
-        getTimeSheet(rowId, fullname)
-
+        globEmpName = fullname;
+        timesheetDatepicker();
+        getTimeSheet(globEmployeId);
     })
 })
 
@@ -203,19 +156,12 @@ $(function ()
 
 function timesheetDatepicker()
 {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    globMonthList = monthNames;
     var currentDate = new Date();
-    $("#dateId").datepicker("setDate",currentDate);
-    cd = $('.datepicker').val();
-    globMonthName = cd;
-
-
-    /*var getDaysInMonth = function(month,year)
-    {
-        return new Date(year, month, 0).getDate()
-    };
-    var month = currentDate.getMonth();
-    var year  = currentDate.getYear();
-    var dayCount = getDaysInMonth(month, year);
-    globDayCount = dayCount;*/
-
+    globMonthId = currentDate.getMonth()+1;
+    monthName = monthNames[currentDate.getMonth()];
+    $("#IconDemo").val(monthName);
 }

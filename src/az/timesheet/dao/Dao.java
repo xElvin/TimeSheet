@@ -1,6 +1,7 @@
 package az.timesheet.dao;
 
 import az.timesheet.model.Employee;
+import az.timesheet.model.Report;
 import az.timesheet.model.Timesheet;
 
 import java.util.List;

@@ -9,24 +9,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <script>
-    function searchTime(rowId, month)
+    function searchTimeSheet(rowId, monthId)
     {
-        if (rowId != null)
-        {
-            month = month + 2
-            if (month > 12)
-            {
-                month = month - 12
-            }
             $.ajax({
                 type: 'GET',
                 url:  'cs?action=searchTimeSheet',
-                data: 'rowId='+rowId+'&monthName='+month,
+                data: 'rowId='+rowId+'&monthId='+monthId,
                 dataType: 'html',
                 success: function (data)
                 {
                     $('#timesheetDataId').html(data);
-                    //$('.fullname').text(fullname);
+                    $('.fullname').text(globEmpName);
                 },
                 error: function ()
                 {
@@ -34,9 +27,10 @@
                 }
             })
         }
-    }
-    $(function ()
-    {
+
+
+
+    $(function () {
         $('#tsTableId').dataTable({
             paging: true,
             pageLength: 31,
@@ -44,34 +38,37 @@
             lengthChange: false,
             info: false,
             scrollCollapse: true,
-            scrollY: "calc(74vh)"});
+            scrollY: "calc(74vh)"
+        });
 
         $('#tsTableId_length').hide();
 
-        $('.datepicker').datepicker({
-            changeMonth: true,
-            changeYear: true,
-            showButtonPanel: true,
-            dateFormat: 'MM',
-            onClose: function(dateText, inst)
+
+        $('#IconDemo').MonthPicker({ StartYear: 2019, ShowIcon: true,
+            OnAfterChooseMonth: function()
             {
-                $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 0));
-                searchTime(globEmployeId, inst.selectedMonth)
+                var monthId = $(this).val().split('/')[0];
+                $('#IconDemo').val(globMonthList[parseInt(monthId-1)]);
+                searchTimeSheet(globEmployeId, monthId);
+
             }
-        });
+            })
+
+        $("input[type='month']").MonthPicker();
     });
 
 </script>
 
 <div>
-    <div>
+    <div style="margin-top: 10px;"> Choose a Month
         <div style="display: inline-block">
-            <input type="text" id="dateId" class="datepicker" placeholder="Select Date"/>
+            <input id="IconDemo" class="Default month-year-input" type="text" disabled="disabled">
         </div> &nbsp;
 
         <div class="fullname" style="display: initial">fullname</div>
         <br>
     </div>
+</div>
 
     <div>
         <table id="tsTableId" class="display" cellspacing="0" width="100%">
@@ -101,6 +98,7 @@
                             <option <c:if test="${tl.status == 'O'}">  selected </c:if> value="O">Overtime</option>
                             <option <c:if test="${tl.status == 'V'}">  selected </c:if> value="V">Vacation</option>
                             <option <c:if test="${tl.status == 'SD'}"> selected </c:if> value="SD">Sort Day</option>
+                            <option <c:if test="${tl.status == 'SL'}"> selected </c:if> value="SL">Sick Leave</option>
                         </select>
                     </td>
 
@@ -119,12 +117,32 @@
             <th>Comment</th>
             <th>Working Hour</th>
             </tfoot>
+
+            <tbody style="text-align: center;">
+            <tr>
+                <th colspan="3">Working Hours</th>
+                <th>Total</th>
+            </tr>
+
+            <tr>
+                <th>Regular</th>
+                <th>Sort Day</th>
+                <th>Overtime</th>
+                <td rowspan="2">4</td>
+            </tr>
+
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+            </tr>
+            </tbody>
         </table>
 
-        <div>
+        <%--<div>
             <input type="button" id="updateTimesheetBtnId" value="Submit"
                    style="float:right;  width: 140px; height: 45px; margin: 30px; margin-right: 270px">
-        </div>
+        </div>--%>
 
     </div>
 </div>

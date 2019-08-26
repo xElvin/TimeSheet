@@ -3,6 +3,7 @@ package web;
 import az.timesheet.dao.Dao;
 import az.timesheet.dao.daoImpl;
 import az.timesheet.model.Employee;
+import az.timesheet.model.Report;
 import az.timesheet.model.Timesheet;
 import com.google.gson.Gson;
 import org.json.*;
@@ -67,32 +68,16 @@ public class ControllerServlet extends javax.servlet.http.HttpServlet {
             else if (action.equalsIgnoreCase("getTimeSheet"))
             {
                 String e_id = request.getParameter("rowId");
-                if (e_id != null)
+                if (e_id != null && !e_id.isEmpty())
                 {
-                    /*Calendar c = Calendar.getInstance();
-                    mName = monthName[c.get(Calendar.MONTH)];
-                    int year = c.get(Calendar.YEAR);
-                    int month = c.get(Calendar.MONTH);
-                    int dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
-                    int day = c.get(Calendar.DATE);
-
-                    YearMonth yearMonthObject = YearMonth.of(year, month);
-                    int daysInMonth = yearMonthObject.lengthOfMonth();*/
-
+                    int monthId = Integer.parseInt(request.getParameter("monthId"));
                     long eId = Long.parseLong(e_id);
-                    //Long.parseLong(request.getParameter("monthId"));
 
-                    List<Timesheet> tsList = dao.getTimesheet(eId);
+                    List<Timesheet> tsList = dao.searchTimesheet(eId, monthId);
                     request.setAttribute("tsList", tsList);
 
-                   /* request.setAttribute("mName", mName);
-                    request.setAttribute("monthId", month);
-                    request.setAttribute("daysInMonth", daysInMonth);
-                    request.setAttribute("dayOfMonth", dayOfMonth);
-                    request.setAttribute("day", day);*/
                     address = "WEB-INF/parseJsp/timeList.jsp";
                 }
-
 
                 else
                     System.out.println("EmployeId is null!");
@@ -100,21 +85,23 @@ public class ControllerServlet extends javax.servlet.http.HttpServlet {
 
             else if (action.equalsIgnoreCase("searchTimeSheet"))
             {
-                String monNameId = request.getParameter("monthName");
+                String monNameId = request.getParameter("monthId");
                 String e_id = request.getParameter("rowId");
-                if (monNameId != null && e_id != null) {
+
+                if (monNameId != null && e_id != null && !monNameId.isEmpty() && ! e_id.isEmpty()) {
                     long monthId = Long.parseLong(monNameId);
                     long eId = Long.parseLong(e_id);
 
-                    System.out.println("monthName=" + monthId);
-
                     List<Timesheet> tsList = dao.searchTimesheet(eId, monthId);
                     request.setAttribute("tsList", tsList);
+
+                    request.setAttribute("monthId", monthId);
+
                     address = "WEB-INF/parseJsp/searchTimeList.jsp";
                 }
                 else
                 {
-                    System.out.println("EmployeeId is null!");
+                    System.out.println("EmployeeId or MonthId is null!");
                 }
             }
 
@@ -135,7 +122,7 @@ public class ControllerServlet extends javax.servlet.http.HttpServlet {
                     int day        = jsonObject.getInt("day");
                     String status  = jsonObject.getString("status");
                     String comment = jsonObject.getString("comment");
-                    int workHome   = jsonObject.getInt("workHour");
+                    int workHour   = jsonObject.getInt("workHour");
 
                     Timesheet t = new Timesheet();
                     t.setEmpId(empId);
@@ -143,11 +130,10 @@ public class ControllerServlet extends javax.servlet.http.HttpServlet {
                     t.setDay(day);
                     t.setStatus(status);
                     t.setComment(comment);
-                    t.setWorkHour(workHome);
+                    t.setWorkHour(workHour);
                     dao.updateTimesheet(t);
                 }
-                List<Timesheet> tsList = dao.getTimesheet(empId);
-                request.setAttribute("tsList", tsList);
+
                 address = "WEB-INF/parseJsp/timeList.jsp";
             }
 
