@@ -161,7 +161,9 @@
                     <select id="statusComboId_${Count.count}" style="width: 110px" class="selectpicker"
                             onchange="if ((this.value) === 'O')
                             {
-                                $('#workHour_${Count.count}').attr('contenteditable', true)
+                                $('#workHour_${Count.count}').attr('contenteditable', true);
+                                $('#workHour_${Count.count}').text('');
+                               // $('#workHour_${Count.count}').css('background-color', '#7abaff');
                             }
                             else
                             {
@@ -181,7 +183,7 @@
 
                 <td class="comment" contenteditable="true">${tl.comment}</td>
 
-                <td id="workHour_${Count.count}" class="workhour"  contenteditable="false">${tl.workHour}</td>
+                <td id="workHour_${Count.count}" class="workhour">${tl.workHour}</td>
             </tr>
         </c:forEach>
 
