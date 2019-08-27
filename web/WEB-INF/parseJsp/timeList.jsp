@@ -10,7 +10,7 @@
 
 <script>
 
-    function searchTimeSheet(rowId, monthId)
+    function searchTimeSheet(rowId, monthId, gMonthName)
     {
             $.ajax({
                 type: 'GET',
@@ -21,6 +21,7 @@
                 {
                     $('#timesheetDataId').html(data);
                     $('.fullname').text(globEmpName);
+                    $("#IconDemo").val(gMonthName);
                 },
                 error: function ()
                 {
@@ -66,8 +67,9 @@
             OnAfterChooseMonth: function()
             {
                 var monthId = $(this).val().split('/')[0];
-                $('#IconDemo').val(globMonthList[parseInt(monthId-1)]);
-                searchTimeSheet(globEmployeId, monthId);
+                var gMonthName = globMonthList[parseInt(monthId-1)];
+                $('#IconDemo').val(monthName);
+                searchTimeSheet(globEmployeId, monthId, gMonthName);
             }
         });
 
@@ -137,6 +139,7 @@
         <br>
     </div>
 </div>
+
 <div>
     <table id="tsTableId" class="display" cellspacing="0" width="100%">
         <thead>
@@ -217,6 +220,7 @@
                 </tbody>
             </table>
         </div>
+
     <div>
         <input type="button" id="updateTimesheetBtnId" value="Submit"
                style="float: right;
@@ -224,6 +228,4 @@
                       height: 45px;
                       margin-top: 30px;">
     </div>
-</div>
-
 </div>

@@ -2,6 +2,7 @@ var globEmployeId = '';
 var globEmpName   = '';
 var globMonthId   = '';
 var globMonthList = '';
+var globMonthName = '';
 
 function getEmployeeList()
 {
@@ -163,5 +164,6 @@ function timesheetDatepicker()
     var currentDate = new Date();
     globMonthId = currentDate.getMonth()+1;
     monthName = monthNames[currentDate.getMonth()];
+    //globMonthName = monthName;
     $("#IconDemo").val(monthName);
 }

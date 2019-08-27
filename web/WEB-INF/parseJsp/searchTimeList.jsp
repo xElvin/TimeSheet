@@ -9,7 +9,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <script>
-    function searchTimeSheet(rowId, monthId)
+    function searchTimeSheet(rowId, monthId, gMonthName)
     {
             $.ajax({
                 type: 'GET',
@@ -20,6 +20,7 @@
                 {
                     $('#timesheetDataId').html(data);
                     $('.fullname').text(globEmpName);
+                    $("#IconDemo").val(gMonthName);
                 },
                 error: function ()
                 {
@@ -41,20 +42,88 @@
             scrollY: "calc(74vh)"
         });
 
+        $('#tsTableId_paginate').hide();
+
         $('#tsTableId_length').hide();
+
+
+
+        $('#reportTableId').dataTable({
+            paging: true,
+            pageLength: 5,
+            searching: true,
+            lengthChange: false,
+            info: false,
+            scrollCollapse: true,
+            scrollY: "calc(74vh)"});
+        $('#reportTableId_filter').hide();
+
+        $('#reportTableId_paginate').hide();
+
+        $('#reportTableId_length').hide();
 
 
         $('#IconDemo').MonthPicker({ StartYear: 2019, ShowIcon: true,
             OnAfterChooseMonth: function()
             {
                 var monthId = $(this).val().split('/')[0];
-                $('#IconDemo').val(globMonthList[parseInt(monthId-1)]);
-                searchTimeSheet(globEmployeId, monthId);
+                var gMonthName = globMonthList[parseInt(monthId-1)];
+                $('#IconDemo').val(gMonthName);
+                searchTimeSheet(globEmployeId, monthId, gMonthName);
 
             }
             })
 
         $("input[type='month']").MonthPicker();
+
+
+        var rdCount = 0;
+        var vdCount = 0;
+        var sdCount = 0;
+        var ndCount = 0;
+        var rhHour  = 0;
+        var ohHour  = 0;
+
+        $('.items').each(function (i, v)
+        {
+            var status = $(v).find('.selectpicker :selected').val();
+            var workHour   = $(v).find('.workhour').text();
+
+            if (status == 'R' || status == 'SD')
+            {
+                rdCount++ ;
+                rhHour += parseInt(workHour);
+            }
+
+            else if(status == 'O')
+            {
+                ohHour += parseInt(workHour);
+            }
+
+            else if(status == 'V')
+            {
+                vdCount++;
+            }
+
+            else if(status == 'SL')
+            {
+                sdCount++;
+            }
+
+            else if(status == 'W' || status == 'H')
+            {
+                ndCount++;
+            }
+
+        });
+
+        $('#mwd').text(rdCount)
+        $('#nwd').text(ndCount);
+        $('#sl').text(sdCount);
+        $('#vd').text(vdCount);
+        $('#mwh').text(rhHour);
+        $('#ot').text(ohHour);
+
     });
 
 </script>
@@ -110,39 +179,40 @@
             </c:forEach>
 
             </tbody>
-            <tfoot>
+            <%--<tfoot>
             <th>Month</th>
             <th>Day</th>
             <th>Status</th>
             <th>Comment</th>
             <th>Working Hour</th>
-            </tfoot>
+            </tfoot>--%>
 
-            <tbody style="text-align: center;">
-            <tr>
-                <th colspan="3">Working Hours</th>
-                <th>Total</th>
-            </tr>
-
-            <tr>
-                <th>Regular</th>
-                <th>Sort Day</th>
-                <th>Overtime</th>
-                <td rowspan="2">4</td>
-            </tr>
-
-            <tr>
-                <td>1</td>
-                <td>2</td>
-                <td>3</td>
-            </tr>
-            </tbody>
         </table>
 
-        <%--<div>
-            <input type="button" id="updateTimesheetBtnId" value="Submit"
-                   style="float:right;  width: 140px; height: 45px; margin: 30px; margin-right: 270px">
-        </div>--%>
+
+        <div>
+            <table id="reportTableId" class="display" cellspacing="0" width="100%" style="text-align: center">
+                <thead>
+                    <th>Monthly Working Days</th>
+                    <th>Holidays and Non-working days</th>
+                    <th>Sick Leave</th>
+                    <th>Vacation</th>
+                    <th>Monthly Working Hours</th>
+                    <th>Overtime Hours</th>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td id="mwd"></td>
+                        <td id="nwd"></td>
+                        <td id="sl"></td>
+                        <td id="vd"></td>
+                        <td id="mwh"></td>
+                        <td id="ot"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
     </div>
-</div>
+
